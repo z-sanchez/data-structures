@@ -6,4 +6,3 @@ linkedList: linkedListOutput
 
 linkedListOutput: linkedList.c
 	gcc $(CFLAGS) linkedList.c -o linkedListOutput
-

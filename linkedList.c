@@ -1,72 +1,105 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// construct node
-// construct list
+// create node
+// create list
 // prepend
-// append
-// traverse
+// append (without tail)
+// append (with tail)
+// display list
+// to array
+// free list
 // find
 // delete head
-// to array
+// delete tail
 
-struct Node
+typedef struct node
 {
     char value;
-    struct Node *next;
-};
+    struct node *next;
+} node_t;
 
-struct LinkedList
+typedef struct LinkedList
 {
-    struct Node *head;
-    struct Node *tail;
-};
+    node_t *head;
+    node_t *tail;
+} linkedList_t;
 
-void append(char value, struct LinkedList *linkedList);
-void insertAtBegin(char value, struct LinkedList *linkedList);
+node_t *createNode(char value);
+linkedList_t *initializeList();
+void prepend(char value, linkedList_t *linkedList);
+void printList(linkedList_t *linkedList_t);
 
 int main()
 {
+    linkedList_t *list = initializeList();
 
-    struct LinkedList linkedList;
-    struct Node *headNode = (struct Node *)malloc(sizeof(struct Node));
+    prepend('K', list);
+    prepend('E', list);
+    prepend('I', list);
+    prepend('Z', list);
 
-    headNode->next = NULL;
-    headNode->value = NULL;
-
-    linkedList.head = headNode;
-    linkedList.tail = headNode;
-
-    insertAtBegin('j', &linkedList);
-    append('k', &linkedList);
-    append('s', &linkedList);
-
-    printf("HELLO TESTING.... %c | %c | %c \n", linkedList.head->value, linkedList.head->next->value, linkedList.head->next->next->value);
+    printList(list);
 
     return 0;
 }
 
-void insertAtBegin(char value, struct LinkedList *linkedList)
+node_t *createNode(char value)
 {
-    struct Node *newNode = (struct Node *)malloc(sizeof(struct Node));
+    node_t *newNode = (node_t *)malloc(sizeof(node_t));
+
+    if (newNode == NULL)
+    {
+        printf("FAILED TO ALLOCATE MEMORY WHEN CREATING NEW NODE");
+        exit(1);
+    }
+
+    newNode->next = NULL;
     newNode->value = value;
-    newNode->next = linkedList->head->next;
+
+    return newNode;
+}
+
+linkedList_t *initializeList()
+{
+    linkedList_t *linkedList = (linkedList_t *)malloc(sizeof(linkedList_t));
+
+    if (linkedList == NULL)
+    {
+        printf("FAILED TO ALLOCATE MEMORY WHEN CREATING NEW LIST");
+        exit(1);
+    }
+
+    node_t *head = createNode(NULL);
+
+    linkedList->head = head;
+    linkedList->tail = head;
+
+    return linkedList;
+}
+
+void prepend(char value, linkedList_t *linkedList)
+{
+    if (linkedList->head->value == NULL)
+    {
+        linkedList->head->value = value;
+        return;
+    }
+
+    node_t *newNode = createNode(value);
+    newNode->next = linkedList->head;
     linkedList->head = newNode;
 }
 
-void append(char value, struct LinkedList *linkedList)
+void printList(linkedList_t *linkedList_t)
 {
-    struct Node *newNode = (struct Node *)malloc(sizeof(struct Node));
-    newNode->value = value;
-    newNode->next = NULL;
+    node_t *current = linkedList_t->head;
 
-    struct Node *ptr = linkedList->head;
-
-    while (ptr->next != NULL)
+    while (current != NULL)
     {
-        ptr = ptr->next;
+        printf("%c ", current->value);
+        current = current->next;
     }
 
-    ptr->next = newNode;
-    // linkedList->tail = ptr;
+    printf("\n");
 }
