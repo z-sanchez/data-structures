@@ -260,6 +260,15 @@ void deleteTail(linkedList_t *linkedList)
     linkedList->tail = currentPtr;
 }
 
+/*
+ * Create pointer node and set it to list's head
+ * Set Iteration to zero
+ * While iteration does not equal index
+ * Set current node to next
+ * Check if its null, if so, return null
+ * Increment iteration by one
+ * Return node once found
+ */
 node_t *findNodeByIndex(linkedList_t *linkedList, int index)
 {
     node_t *currentNode = linkedList->head;
