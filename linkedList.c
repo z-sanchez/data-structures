@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// find
 // delete by index
 // to array
 
@@ -26,15 +25,23 @@ void appendWithTail(char value, linkedList_t *linkedList);
 void freeList(linkedList_t *linkedList);
 void deleteHead(linkedList_t *linkedList);
 void deleteTail(linkedList_t *linkedList);
+node_t *findNodeByIndex(linkedList_t *linkedList, int index);
 
 int main()
 {
     linkedList_t *list = initializeList();
+    node_t *findNode;
 
     prepend('Z', list);
     prepend('I', list);
     appendWithoutTail('S', list);
-    deleteTail(list);
+
+    findNode = findNodeByIndex(list, 4);
+
+    if (findNode != NULL)
+    {
+        printf("FOUND NODE: %c \n", findNode->value);
+    }
 
     printList(list);
 
@@ -251,4 +258,22 @@ void deleteTail(linkedList_t *linkedList)
 
     currentPtr->next = NULL;
     linkedList->tail = currentPtr;
+}
+
+node_t *findNodeByIndex(linkedList_t *linkedList, int index)
+{
+    node_t *currentNode = linkedList->head;
+    int iteration = 0;
+
+    while (iteration != index)
+    {
+        currentNode = currentNode->next;
+        if (currentNode == NULL)
+        {
+            return NULL;
+        }
+        ++iteration;
+    }
+
+    return currentNode;
 }
