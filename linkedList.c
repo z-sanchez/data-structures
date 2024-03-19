@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 typedef struct node
 {
@@ -33,7 +34,6 @@ int main()
     prepend('I', list);
     appendWithoutTail('S', list);
 
-    // not working when index is out of range
     deleteNodeByIndex(list, 3);
     printf("HEAD: %c |   TAIL:  %c \n", list->head->value, list->tail->value);
 
@@ -86,7 +86,7 @@ linkedList_t *initializeList()
         exit(1);
     }
 
-    node_t *head = createNode(NULL);
+    node_t *head = createNode('\0');
 
     linkedList->head = head;
     linkedList->tail = head;
@@ -104,7 +104,7 @@ linkedList_t *initializeList()
  */
 void prepend(char value, linkedList_t *linkedList)
 {
-    if (linkedList->head->value == NULL)
+    if (linkedList->head->value == '\0')
     {
         linkedList->head->value = value;
         return;
@@ -144,7 +144,7 @@ void printList(linkedList_t *linkedList_t)
 void appendWithoutTail(char value, linkedList_t *linkedList)
 {
 
-    if (linkedList->head->value == NULL)
+    if (linkedList->head->value == '\0')
     {
         linkedList->head->value = value;
         return;
@@ -283,12 +283,18 @@ node_t *findNodeByIndex(linkedList_t *linkedList, int index)
 
 /*
  * Create pointer node and set it to list's head
+ * Create a temp node
  * Set Iteration to zero
- * While iteration does not equal index
- * Set current node to next
- * Check if its null, if so, return null
+ * Check if index is 0, if so just delete head and return
+ * While iteration does not equal index - 1
+ * Check if next node is NULL, if so return
+ * Else set pointer to pointer's next node
  * Increment iteration by one
- * Return node once found
+ * This will give us the node before the node to be deleted
+ * Check if the next node is NULL, if so, return;
+ * If pointer's next is tail, deleteTail
+ * Else, set temp to next node, set pointer's next to pointer's next next
+ * Free temp
  */
 void deleteNodeByIndex(linkedList_t *linkedList, int index)
 {
@@ -310,6 +316,11 @@ void deleteNodeByIndex(linkedList_t *linkedList, int index)
         }
         currentNode = currentNode->next;
         ++iteration;
+    }
+
+    if (currentNode->next == NULL)
+    {
+        return;
     }
 
     if (currentNode->next == linkedList->tail)
