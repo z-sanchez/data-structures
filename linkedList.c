@@ -1,9 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// delete by index
-// to array
-
 typedef struct node
 {
     char value;
@@ -26,22 +23,19 @@ void freeList(linkedList_t *linkedList);
 void deleteHead(linkedList_t *linkedList);
 void deleteTail(linkedList_t *linkedList);
 node_t *findNodeByIndex(linkedList_t *linkedList, int index);
+void deleteNodeByIndex(linkedList_t *linkedList, int index);
 
 int main()
 {
     linkedList_t *list = initializeList();
-    node_t *findNode;
 
     prepend('Z', list);
     prepend('I', list);
     appendWithoutTail('S', list);
 
-    findNode = findNodeByIndex(list, 4);
-
-    if (findNode != NULL)
-    {
-        printf("FOUND NODE: %c \n", findNode->value);
-    }
+    // not working when index is out of range
+    deleteNodeByIndex(list, 3);
+    printf("HEAD: %c |   TAIL:  %c \n", list->head->value, list->tail->value);
 
     printList(list);
 
@@ -285,4 +279,49 @@ node_t *findNodeByIndex(linkedList_t *linkedList, int index)
     }
 
     return currentNode;
+}
+
+/*
+ * Create pointer node and set it to list's head
+ * Set Iteration to zero
+ * While iteration does not equal index
+ * Set current node to next
+ * Check if its null, if so, return null
+ * Increment iteration by one
+ * Return node once found
+ */
+void deleteNodeByIndex(linkedList_t *linkedList, int index)
+{
+    node_t *currentNode = linkedList->head;
+    node_t *temp;
+    int iteration = 0;
+
+    if (index == 0)
+    {
+        deleteHead(linkedList);
+        return;
+    }
+
+    while (iteration != index - 1)
+    {
+        if (currentNode->next == NULL)
+        {
+            return;
+        }
+        currentNode = currentNode->next;
+        ++iteration;
+    }
+
+    if (currentNode->next == linkedList->tail)
+    {
+        deleteTail(linkedList);
+    }
+    else
+    {
+        temp = currentNode->next;
+
+        currentNode->next = currentNode->next->next;
+
+        free(temp);
+    }
 }
