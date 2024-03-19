@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// delete tail
 // find
 // delete by index
 // to array
@@ -33,17 +32,12 @@ int main()
     linkedList_t *list = initializeList();
 
     prepend('Z', list);
-    // prepend('E', list);
     prepend('I', list);
-    // prepend('K', list);
     appendWithoutTail('S', list);
-    // appendWithTail('X', list);
-
     deleteTail(list);
 
     printList(list);
 
-    // freeing needs to be optimized
     freeList(list);
     free(list);
 
@@ -208,10 +202,11 @@ void freeList(linkedList_t *linkedList)
 }
 
 /*
+ * If head and tail are the same, set both to NULL, return
  * Create temp node
  * Set temp node to head
- * Set linked list head to head's next node
- * Free temp node which has the old head stored
+ * Set head to temp's next node
+ * Free temp
  */
 void deleteHead(linkedList_t *linkedList)
 {
@@ -230,10 +225,12 @@ void deleteHead(linkedList_t *linkedList)
 }
 
 /*
- * Create temp node
- * Set temp node to head
- * Set linked list head to head's next node
- * Free temp node which has the old head stored
+ * If head and tail are the same, set both to NULL, return
+ * Create pointer node
+ * While pointer node's next does not equal tail
+ * Set current node to next
+ * Then set current node's next to NULL
+ * Set tail to current node
  */
 void deleteTail(linkedList_t *linkedList)
 {
@@ -252,6 +249,6 @@ void deleteTail(linkedList_t *linkedList)
         currentPtr = currentPtr->next;
     }
 
+    currentPtr->next = NULL;
     linkedList->tail = currentPtr;
-    free(currentPtr->next);
 }
