@@ -1,5 +1,3 @@
 .vscode
-linkedListOutput
-diffLinkedListOut
-linkedListOutput.dSYM
-diffLinkedListOut.dSYM
+*.dSYM
+/build
