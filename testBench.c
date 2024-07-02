@@ -1,457 +1,181 @@
-/*****************************************************************************
-** File: LinkedList_101.c
-**
-** Demonstrates a single-linked list implementation.
-*/
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-/*****************************************************************************
-** Compiler setup.
-*/
-/*-------------------------------------------------------------------------
-** Required header files.
-*/
-#include <stdlib.h> // malloc(), NULL, ...
-#include <stdio.h>  // fprintf(), stderr, snprintf(), printf(), ...
-#include <errno.h>  // ENOMEM, ENOENT, ...
-#include <string.h> // strcmp()...
-
-/*-------------------------------------------------------------------------
-** Linked-list (example) types.
-*/
-typedef struct NODE_PAYLOAD_S
+typedef struct node
 {
-    /* Data Payload (defined by coder) */
-    char name[10];
-    char desc[10];
-    int hours;
-    int workordernum;
-} NODE_PAYLOAD_T;
+    char value[100];
+    struct node *next;
+} node_t;
 
-typedef struct LIST_NODE_S
+void printList(node_t *head);
+node_t *createNode(char *newValue);
+void addToBeginning(node_t **head, char *newValue);
+void addToEnd(node_t **head, char *newValue);
+void reverseList(node_t **head);
+node_t *reverseListRecursive(node_t *head);
+node_t *deleteMiddleNode(node_t *head);
+node_t *deleteMiddleAlt(node_t *head);
+
+int main()
 {
-    /* Next-node pointer */
-    struct LIST_NODE_S *next; /* pointer to the next node in the list. */
-    NODE_PAYLOAD_T payload;   /* Data Payload (defined by coder) */
-} LIST_NODE_T;
+    node_t *head = (node_t *)malloc(sizeof(node_t));
+    strcpy(head->value, "Ziek");
 
-/*****************************************************************************
-** Allocate, initialize, and insert a new node at the list head.
-*/
-int LIST_InsertHeadNode(
-    LIST_NODE_T **IO_head,
-    char *I__name,
-    char *I__desc,
-    int I__hours,
-    int I__workordernum)
-{
-    int rCode = 0;
-    LIST_NODE_T *newNode = NULL;
+    addToBeginning(&head, (char *)"Mimi");
+    addToEnd(&head, (char *)"Bella");
+    addToEnd(&head, (char *)"Bob");
+    addToEnd(&head, (char *)"Bob2");
+    addToEnd(&head, (char *)"Bob3");
+    addToEnd(&head, (char *)"Bob4");
+    addToEnd(&head, (char *)"Bob5");
+    addToEnd(&head, (char *)"Bob6");
+    addToEnd(&head, (char *)"Bob7");
+    addToEnd(&head, (char *)"Bob8");
 
-    /* Allocate memory for new node (with its payload). */
-    newNode = (LIST_NODE_T *)malloc(sizeof(*newNode));
-    if (NULL == newNode)
-    {
-        rCode = ENOMEM; /* ENOMEM is defined in errno.h */
-        fprintf(stderr, "malloc() failed.\n");
-        goto CLEANUP;
-    }
+    printList(head);
 
-    /* Initialize the new node's payload. */
-    snprintf(newNode->payload.name, sizeof(newNode->payload.name), "%s", I__name);
-    snprintf(newNode->payload.desc, sizeof(newNode->payload.desc), "%s", I__desc);
-    newNode->payload.hours = I__hours;
-    newNode->payload.workordernum = I__workordernum;
+    // reverseList(&head);
 
-    /* Link this node into the list as the new head node. */
-    newNode->next = *IO_head;
-    *IO_head = newNode;
+    // printList(head);
 
-CLEANUP:
+    // node_t *newList = reverseListRecursive(head);
 
-    return (rCode);
+    // printList(newList);
+    printf("DELETING \n");
+
+    deleteMiddleAlt(head);
+
+    printList(head);
+
+    return 0;
 }
 
-/*****************************************************************************
-** Print the payloads of each node (from head to tail) in a linked list.
-*/
-int PrintListPayloads(
-    LIST_NODE_T *head)
+void printList(node_t *head)
 {
-    int rCode = 0;
-    LIST_NODE_T *cur = head;
-    int nodeCnt = 0;
+    node_t *current = head;
 
-    while (cur)
+    while (current != NULL)
     {
-        ++nodeCnt;
-        printf("%s, %s, %d, %d\n",
-               cur->payload.name,
-               cur->payload.desc,
-               cur->payload.hours,
-               cur->payload.workordernum);
-        cur = cur->next;
+        printf("%s\n", current->value);
+        current = current->next;
     }
-
-    printf("%d nodes printed.\n", nodeCnt);
-
-    return (rCode);
 }
 
-/*****************************************************************************
-** Get the last list node by walking the list.
-*/
-int LIST_GetTailNode(
-    LIST_NODE_T *I__listHead, /* The caller supplied list head pointer. */
-    LIST_NODE_T **_O_listTail /* The function sets the callers pointer to the last node. */
-)
+node_t *createNode(char *newValue)
 {
-    int rCode = 0;
-    LIST_NODE_T *curNode = I__listHead;
+    node_t *newNode = (node_t *)malloc(sizeof(node_t));
+    strcpy(newNode->value, newValue);
 
-    /* Iterate through all list nodes until the last node is found. */
-    /* The last node's 'next' field, which is always NULL. */
-    if (curNode)
-    {
-        while (curNode->next)
-            curNode = curNode->next;
-    }
-
-    /* Set the caller's pointer to point to the last (ie: tail) node. */
-    if (_O_listTail)
-        *_O_listTail = curNode;
-
-    return (rCode);
+    return newNode;
 }
 
-/*****************************************************************************
-** Allocate, initialize, and insert a new node at the list tail.
-*/
-int LIST_InsertTailNode(
-    LIST_NODE_T **IO_head,
-    char *I__name,
-    char *I__desc,
-    int I__hours,
-    int I__workordernum)
+void addToBeginning(node_t **head, char *newValue)
 {
-    int rCode = 0;
-    LIST_NODE_T *tailNode;
-    LIST_NODE_T *newNode = NULL;
-
-    /* Get a pointer to the last node in the list. */
-    rCode = LIST_GetTailNode(*IO_head, &tailNode);
-    if (rCode)
-    {
-        fprintf(stderr, "LIST_GetTailNode() reports: %d\n", rCode);
-        goto CLEANUP;
-    }
-
-    /* Allocate memory for new node (with its payload). */
-    newNode = (LIST_NODE_T *)malloc(sizeof(*newNode));
-    if (NULL == newNode)
-    {
-        rCode = ENOMEM; /* ENOMEM is defined in errno.h */
-        fprintf(stderr, "malloc() failed.\n");
-        goto CLEANUP;
-    }
-
-    /* Initialize the new node's payload. */
-    snprintf(newNode->payload.name, sizeof(newNode->payload.name), "%s", I__name);
-    snprintf(newNode->payload.desc, sizeof(newNode->payload.desc), "%s", I__desc);
-    newNode->payload.hours = I__hours;
-    newNode->payload.workordernum = I__workordernum;
-
-    /* Link this node into the list as the new tail node. */
-    newNode->next = NULL;
-    if (tailNode)
-        tailNode->next = newNode;
-    else
-        *IO_head = newNode;
-
-CLEANUP:
-
-    return (rCode);
+    node_t *newNode = createNode(newValue);
+    newNode->next = *head;
+    *head = newNode;
 }
 
-/*****************************************************************************
-** Find a node with a payload->name string greater than the I__name string.
-*/
-int LIST_FetchParentNodeByName(
-    LIST_NODE_T *I__head,
-    const char *I__name,
-    LIST_NODE_T **_O_parent)
+void addToEnd(node_t **head, char *newValue)
 {
-    int rCode = 0;
-    LIST_NODE_T *parent = NULL;
-    LIST_NODE_T *curNode = I__head;
+    node_t *newNode = createNode(newValue);
+    node_t *current = *head;
 
-    /* Inform the caller of an 'empty list' condition. */
-    if (NULL == I__head)
+    while (current->next != NULL)
     {
-        rCode = ENOENT;
-        goto CLEANUP;
+        current = current->next;
     }
 
-    /* Find a node with a payload->name string greater than the I__name string */
-    while (curNode)
-    {
-        if (strcmp(curNode->payload.name, I__name) > 0)
-            break;
-
-        parent = curNode;        /* Remember this node. It is the parent of the next node. */
-        curNode = curNode->next; /* On to the next node. */
-    }
-
-    /* Set the caller's 'parent' pointer. */
-    if (_O_parent)
-        *_O_parent = parent;
-
-CLEANUP:
-
-    return (rCode);
+    current->next = newNode;
 }
 
-/*****************************************************************************
-** Allocate, initialize, and insert a new node in an ordered list.
-*/
-int LIST_InsertNodeByName(
-    LIST_NODE_T **IO_head,
-    char *I__name,
-    char *I__desc,
-    int I__hours,
-    int I__workordernum)
+void reverseList(node_t **head)
 {
-    int rCode = 0;
-    LIST_NODE_T *parent;
-    LIST_NODE_T *newNode = NULL;
+    node_t *current = *head;
+    node_t *newList = NULL;
 
-    /* Allocate memory for new node (with its payload). */
-    newNode = (LIST_NODE_T *)malloc(sizeof(*newNode));
-    if (NULL == newNode)
+    while (current != NULL)
     {
-        rCode = ENOMEM; /* ENOMEM is defined in errno.h */
-        fprintf(stderr, "malloc() failed.\n");
-        goto CLEANUP;
+        node_t *nextNode = current->next;
+
+        current->next = newList;
+
+        newList = current;
+
+        current = nextNode;
     }
 
-    /* Initialize the new node's payload. */
-    snprintf(newNode->payload.name, sizeof(newNode->payload.name), "%s", I__name);
-    snprintf(newNode->payload.desc, sizeof(newNode->payload.desc), "%s", I__desc);
-    newNode->payload.hours = I__hours;
-    newNode->payload.workordernum = I__workordernum;
-
-    /* Find the proper place to link this node */
-    rCode = LIST_FetchParentNodeByName(*IO_head, I__name, &parent);
-    switch (rCode)
-    {
-    case 0:
-        break;
-
-    case ENOENT:
-        /* Handle empty list condition */
-        newNode->next = NULL;
-        *IO_head = newNode;
-        rCode = 0;
-        goto CLEANUP;
-
-    default:
-        fprintf(stderr, "LIST_FetchParentNodeByName() reports: %d\n", rCode);
-        goto CLEANUP;
-    }
-
-    /* Handle the case where all current list nodes are greater than the new node. */
-    /* (Where the new node will become the new list head.) */
-    if (NULL == parent)
-    {
-        newNode->next = *IO_head;
-        *IO_head = newNode;
-        goto CLEANUP;
-    }
-
-    /* Final case, insert the new node just after the parent node. */
-    newNode->next = parent->next;
-    parent->next = newNode;
-
-CLEANUP:
-
-    return (rCode);
+    *head = newList;
 }
 
-/*****************************************************************************
-** Find a specific node by name.
-*/
-int LIST_FetchNodeByName(
-    LIST_NODE_T *I__head,
-    const char *I__name,
-    LIST_NODE_T **_O_node,
-    LIST_NODE_T **_O_parent)
+node_t *reverseListRecursive(node_t *head)
 {
-    int rCode = 0;
-    LIST_NODE_T *parent = NULL;
-    LIST_NODE_T *curNode = I__head;
 
-    /* Search the list for a matching payload name. */
-    while (curNode)
+    if (head == NULL)
     {
-        if (0 == strcmp(curNode->payload.name, I__name))
-            break;
-
-        parent = curNode; /* Remember this node; it will be the parent of the next. */
-        curNode = curNode->next;
+        return NULL;
     }
 
-    /* If no match is found, inform the caller. */
-    if (NULL == curNode)
+    if (head->next == NULL)
     {
-        rCode = ENOENT;
-        goto CLEANUP;
+        return head;
     }
 
-    /* Return the matching node to the caller. */
-    if (_O_node)
-        *_O_node = curNode;
+    node_t *restOfList = reverseListRecursive(head->next);
 
-    /* Return parent node to the caller. */
-    if (_O_parent)
-        *_O_parent = parent;
+    head->next->next = head;
+    head->next = NULL;
 
-CLEANUP:
-
-    return (rCode);
+    return restOfList;
 }
 
-/*****************************************************************************
-** Locate a specific node by name, unlink it from the list, and free it.
-*/
-int LIST_DeleteNodeByName(
-    LIST_NODE_T **IO_head,
-    char *I__name)
+node_t *deleteMiddleNode(node_t *head)
 {
-    int rCode = 0;
-    LIST_NODE_T *parent;
-    LIST_NODE_T *delNode = NULL;
+    int counter = 0;
+    node_t *current = head;
 
-    /* Find the node to delete. */
-    rCode = LIST_FetchNodeByName(*IO_head, I__name, &delNode, &parent);
-    switch (rCode)
+    while (current != NULL)
     {
-    case 0:
-        break;
-
-    case ENOENT:
-        fprintf(stderr, "Matching node not found.\n");
-        goto CLEANUP;
-
-    default:
-        fprintf(stderr, "LIST_FetchNodeByName() reports: %d\n", rCode);
-        goto CLEANUP;
+        current = current->next;
+        ++counter;
     }
 
-    /* Unlink the delNode from the list. */
-    if (NULL == parent)
-        *IO_head = delNode->next;
-    else
-        parent->next = delNode->next;
+    int deleteIndex = counter / 2;
 
-    /* Free the delNode and its payload. */
-    free(delNode);
+    current = head;
 
-CLEANUP:
-
-    return (rCode);
-}
-
-/*****************************************************************************
-** Free all list nodes (from head to tail).
-*/
-int LIST_Destroy(
-    LIST_NODE_T **IO_head)
-{
-    int rCode = 0;
-
-    while (*IO_head)
+    for (int i = 0; i < counter; i++)
     {
-        LIST_NODE_T *delNode = *IO_head;
-
-        *IO_head = (*IO_head)->next;
-        free(delNode);
-    }
-
-    return (rCode);
-}
-
-/*****************************************************************************
-** Program start.
-*/
-int main(void)
-{
-    int rCode = 0;
-    LIST_NODE_T *listHead = NULL;
-
-    /* Insert a linked-list node. */
-    rCode = LIST_InsertHeadNode(&listHead, "Mahonri", "Jareds Bro", 4, 2421);
-    if (rCode)
-    {
-        fprintf(stderr, "LIST_InsertHeadNode() reports: %d\n", rCode);
-        goto CLEANUP;
-    }
-
-    /* Insert a linked-list node. */
-    rCode = LIST_InsertNodeByName(&listHead, "Joe", "CEO", 5, 2419);
-    if (rCode)
-    {
-        fprintf(stderr, "=LIST_InsertNodeByName() reports: %d\n", rCode);
-        goto CLEANUP;
-    }
-
-    /* Insert a linked-list node. */
-    rCode = LIST_InsertNodeByName(&listHead, "Adam", "All men", 5, 2419);
-    if (rCode)
-    {
-        fprintf(stderr, "LIST_InsertNodeByName() reports: %d\n", rCode);
-        goto CLEANUP;
-    }
-
-    /* Insert a linked-list node. */
-    rCode = LIST_InsertNodeByName(&listHead, "Eve", "Mother", 24, 2);
-    if (rCode)
-    {
-        fprintf(stderr, "LIST_InsertNodeByName() reports: %d\n", rCode);
-        goto CLEANUP;
-    }
-
-    rCode = LIST_DeleteNodeByName(&listHead, "Adam");
-    if (rCode)
-    {
-        fprintf(stderr, "LIST_DeleteNodeByName() reports: %d\n", rCode);
-        goto CLEANUP;
-    }
-
-    rCode = LIST_InsertTailNode(&listHead, "Omega", "[The End]", 29, 3);
-    if (rCode)
-    {
-        fprintf(stderr, "LIST_InsertNodeByName() reports: %d\n", rCode);
-        goto CLEANUP;
-    }
-
-    rCode = PrintListPayloads(listHead);
-    if (rCode)
-    {
-        fprintf(stderr, "PrintListPayloads() reports: %d\n", rCode);
-        goto CLEANUP;
-    }
-
-CLEANUP:
-
-    if (listHead)
-    {
-        int rc = LIST_Destroy(&listHead);
-        if (rc)
+        if (i == deleteIndex - 1)
         {
-            fprintf(stderr, "LIST_Destroy() reports: %d\n", rc);
-            if (!rCode)
-                rCode = rc;
+            current->next = current->next->next;
+            break;
         }
+        current = current->next;
     }
 
-    return (rCode);
+    return head;
+}
+
+// tortoise and hare algorithm
+node_t *deleteMiddleAlt(node_t *head)
+{
+    if (!head->next)
+        return NULL;
+
+    node_t *fast = head->next;
+    node_t *slow = head;
+
+    while (fast && fast->next)
+    {
+        fast = fast->next->next;
+        if (!fast)
+            break;
+        slow = slow->next;
+    }
+    node_t *q = slow->next;
+    slow->next = slow->next->next;
+    free(q);
+    return head;
 }
