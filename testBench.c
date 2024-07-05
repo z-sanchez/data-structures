@@ -2,180 +2,56 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct node
-{
-    char value[100];
-    struct node *next;
-} node_t;
-
-void printList(node_t *head);
-node_t *createNode(char *newValue);
-void addToBeginning(node_t **head, char *newValue);
-void addToEnd(node_t **head, char *newValue);
-void reverseList(node_t **head);
-node_t *reverseListRecursive(node_t *head);
-node_t *deleteMiddleNode(node_t *head);
-node_t *deleteMiddleAlt(node_t *head);
+int findGCDLength(int lengthOne, int lengthTwo);
+char *findGCD(char *stringOne, char *stringTwo);
 
 int main()
 {
-    node_t *head = (node_t *)malloc(sizeof(node_t));
-    strcpy(head->value, "Ziek");
 
-    addToBeginning(&head, (char *)"Mimi");
-    addToEnd(&head, (char *)"Bella");
-    addToEnd(&head, (char *)"Bob");
-    addToEnd(&head, (char *)"Bob2");
-    addToEnd(&head, (char *)"Bob3");
-    addToEnd(&head, (char *)"Bob4");
-    addToEnd(&head, (char *)"Bob5");
-    addToEnd(&head, (char *)"Bob6");
-    addToEnd(&head, (char *)"Bob7");
-    addToEnd(&head, (char *)"Bob8");
+    char *gcd = findGCD((char *)"ABABAB", (char *)"ABAB");
 
-    printList(head);
-
-    // reverseList(&head);
-
-    // printList(head);
-
-    // node_t *newList = reverseListRecursive(head);
-
-    // printList(newList);
-    printf("DELETING \n");
-
-    deleteMiddleAlt(head);
-
-    printList(head);
+    printf("%s\n", gcd);
 
     return 0;
 }
 
-void printList(node_t *head)
+int findGCDLength(int a, int b)
 {
-    node_t *current = head;
+    int temp = b;
 
-    while (current != NULL)
+    while (b != 0)
     {
-        printf("%s\n", current->value);
-        current = current->next;
+        temp = b;
+        b = a % b;
     }
+
+    return temp;
 }
 
-node_t *createNode(char *newValue)
+char *findGCD(char *stringOne, char *stringTwo)
 {
-    node_t *newNode = (node_t *)malloc(sizeof(node_t));
-    strcpy(newNode->value, newValue);
+    int lenOne = strlen(stringOne);
+    int lenTwo = strlen(stringTwo);
 
-    return newNode;
-}
+    char *concatOne = (char *)malloc(lenOne + lenTwo);
+    char *concatTwo = (char *)malloc(lenOne + lenTwo);
 
-void addToBeginning(node_t **head, char *newValue)
-{
-    node_t *newNode = createNode(newValue);
-    newNode->next = *head;
-    *head = newNode;
-}
+    strcpy(concatOne, stringOne);
+    strcat(concatOne, stringTwo);
 
-void addToEnd(node_t **head, char *newValue)
-{
-    node_t *newNode = createNode(newValue);
-    node_t *current = *head;
+    strcpy(concatTwo, stringTwo);
+    strcat(concatTwo, stringOne);
 
-    while (current->next != NULL)
+    if (strcmp(concatOne, concatTwo) != 0)
     {
-        current = current->next;
+        return (char *)"";
     }
 
-    current->next = newNode;
-}
+    int gcdLength = findGCDLength(lenOne, lenTwo);
+    char *gcd = (char *)malloc(gcdLength + 1);
 
-void reverseList(node_t **head)
-{
-    node_t *current = *head;
-    node_t *newList = NULL;
+    strncpy(gcd, stringOne, gcdLength);
 
-    while (current != NULL)
-    {
-        node_t *nextNode = current->next;
-
-        current->next = newList;
-
-        newList = current;
-
-        current = nextNode;
-    }
-
-    *head = newList;
-}
-
-node_t *reverseListRecursive(node_t *head)
-{
-
-    if (head == NULL)
-    {
-        return NULL;
-    }
-
-    if (head->next == NULL)
-    {
-        return head;
-    }
-
-    node_t *restOfList = reverseListRecursive(head->next);
-
-    head->next->next = head;
-    head->next = NULL;
-
-    return restOfList;
-}
-
-node_t *deleteMiddleNode(node_t *head)
-{
-    int counter = 0;
-    node_t *current = head;
-
-    while (current != NULL)
-    {
-        current = current->next;
-        ++counter;
-    }
-
-    int deleteIndex = counter / 2;
-
-    current = head;
-
-    for (int i = 0; i < counter; i++)
-    {
-        if (i == deleteIndex - 1)
-        {
-            current->next = current->next->next;
-            break;
-        }
-        current = current->next;
-    }
-
-    return head;
-}
-
-// tortoise and hare algorithm
-node_t *deleteMiddleAlt(node_t *head)
-{
-    if (!head->next)
-        return NULL;
-
-    node_t *fast = head->next;
-    node_t *slow = head;
-
-    while (fast && fast->next)
-    {
-        fast = fast->next->next;
-        if (!fast)
-            break;
-        slow = slow->next;
-    }
-    node_t *q = slow->next;
-    slow->next = slow->next->next;
-    free(q);
-    return head;
+    gcd[gcdLength + 1] = '\0';
+    return gcd;
 }
