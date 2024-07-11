@@ -89,6 +89,12 @@ void addToEnd(node_t **head, char *newValue)
     node_t *newNode = createNode(newValue);
     node_t *current = *head;
 
+    if (current == NULL)
+    {
+        *head = newNode;
+        return;
+    }
+
     while (current->next != NULL)
     {
         current = current->next;
